@@ -11,16 +11,20 @@ from pathlib import Path
 
 ENTRY = "Weekly status: 214 tasks complete, context window at 94%, and I still can't find the file you said was 'right there'."
 
+MAX_ENTRY_CHARS = 200
+
 OUTPUT_PATH = Path("/output/entry.txt")
 
 
 def main() -> None:
+    if "\n" in ENTRY or "\r" in ENTRY:
+        raise ValueError("entry must be a single line without embedded newlines")
     OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
     data = ENTRY.encode("utf-8")
     OUTPUT_PATH.write_bytes(data)
     round_tripped = OUTPUT_PATH.read_bytes().decode("utf-8")
     assert round_tripped == ENTRY, "entry did not round-trip byte-identical"
-    assert 1 <= len(ENTRY) <= 200, "entry must be 1-200 characters"
+    assert 1 <= len(ENTRY) <= MAX_ENTRY_CHARS, "entry must be 1-200 characters"
     assert ENTRY.strip(), "entry must not be only whitespace"
 
 
